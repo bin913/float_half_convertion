@@ -1,12 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <CL/cl.h>
 
-cl_half float_to_half(float *f)
+cl_half float_to_half(float f)
 {
   int hs, he, hm, *ptr;
   short rlt;
 
-  ptr = (int *)f;
+  ptr = (int *)&f;
   hs = ((*ptr)&0x80000000) >> 16;
 
   he = ((*ptr)&0x7f800000) >> 23;
@@ -20,12 +21,12 @@ cl_half float_to_half(float *f)
   return *((cl_half *)&rlt);
 }
 
-float half_to_float(cl_half *h)
+float half_to_float(cl_half h)
 {
   short *ptr;
   int fs, fe, fm, rlt;
 
-  ptr = (short *)h;
+  ptr = (short *)&h;
 
   fs = ((*ptr)&0x8000) << 16;
 
@@ -44,9 +45,17 @@ int main(int argc, char **argv)
   cl_half h0;
   float f0;
 
-  f0 = 76.2f;
-  h0 = float_to_half(&f0);
-  f0 = half_to_float(&h0);
+  if(argc < 2)
+  {
+    printf("please input the float value!\n");
+    return 0;
+  }
+  f0 = atof(argv[1]);
+  printf("The initial value: %f\n", f0);
 
-  printf("the value %f.\n", f0);
+  h0 = float_to_half(f0);
+  f0 = half_to_float(h0);
+
+  printf("The value after transfering: %f.\n", f0);
+  return 1;
 }
